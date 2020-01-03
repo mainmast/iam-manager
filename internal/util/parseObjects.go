@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	acc "gitlab.com/mainmast/microservices/iam/iam-models.git/pkg/account"
-	org "gitlab.com/mainmast/microservices/iam/iam-models.git/pkg/organisation"
-	usr "gitlab.com/mainmast/microservices/iam/iam-models.git/pkg/user"
+	acc "github.com/mainmast/iam-models/pkg/account"
+	org "github.com/mainmast/iam-models/pkg/organisation"
+	usr "github.com/mainmast/iam-models/pkg/user"
 )
 
 //ParseOrg ...

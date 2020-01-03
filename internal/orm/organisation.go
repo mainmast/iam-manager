@@ -12,7 +12,7 @@ import (
 
 	"mainmast/iam-manager/internal/util"
 
-	org "gitlab.com/mainmast/microservices/iam/iam-models.git/pkg/organisation"
+	org "github.com/mainmast/iam-models/pkg/organisation"
 )
 
 //CreateOrganisation ...

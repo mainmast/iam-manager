@@ -5,7 +5,7 @@ import (
 
 	"mainmast/iam-manager/internal/handler"
 
-	wb "gitlab.com/mainmast/microservices/cm-http.git/pkg/webserver"
+	wb "github.com/mainmast/httpm/pkg/webserver"
 )
 
 func main() {

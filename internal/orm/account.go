@@ -14,7 +14,7 @@ import (
 
 	"mainmast/iam-manager/internal/util"
 
-	acc "gitlab.com/mainmast/microservices/iam/iam-models.git/pkg/account"
+	acc "github.com/mainmast/iam-models/pkg/account"
 )
 
 //CreateAccount ...

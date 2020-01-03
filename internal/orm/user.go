@@ -15,7 +15,7 @@ import (
 
 	"mainmast/iam-manager/internal/util"
 
-	usr "gitlab.com/mainmast/microservices/iam/iam-models.git/pkg/user"
+	usr "github.com/mainmast/iam-models/pkg/user"
 )
 
 //CreateUser ...

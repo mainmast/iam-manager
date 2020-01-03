@@ -2,7 +2,7 @@ package util
 
 import (
 
-	migration "gitlab.com/mainmast/microservices/iam/migrations.git/pkg"
+	migration "github.com/mainmast/iam-migrations/pkg"
 )
 
 //SetUpCustomer ...
