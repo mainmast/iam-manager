@@ -1,0 +1,294 @@
+{
+	"info": {
+		"_postman_id": "3c9193d7-7cb3-495f-9617-381f23b75ec9",
+		"name": "IAM MANAGER",
+		"description": "iam manager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CREATE ORG",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"organisation\": {\n\t\t\"name\": \"cperez08-gor\",\n\t\t\"whitelist_domains\": [\"andres.com\", \"api.andres.com\", \"app.andres.com\"]\n\t},\n\t\"user\": {\n\t\t\"user_login\": \"andresperez@mail.com\",\n\t\t\"user_secret\": \"mypassword\",\n\t\t\"custom_data\" : {\n\t\t\t\"address\": \"nw 200 sth 30\",\n\t\t\t\"credit_card\": \"9940012040125\",\n\t\t\t\"billing_method\": \"cc\",\n\t\t\t\"recovery_email\": \"cperez08@gmail.com\"\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/iam/org",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"org"
+					]
+				},
+				"description": "Creates a new organisation"
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE ACCOUNT",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-CMO-DB",
+						"value": "cperez08org_zfe0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"cperez-secondary-ACCOUNT\",\n\t\"custom_data\":{\n\t\t\"labels\": [\"second\", \"acc_test\"]\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/iam/acc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"acc"
+					]
+				},
+				"description": "Creates new account"
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE USER",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"user_login\": \"cperez_devolop_2\",\n\t\"user_secret\" : \"Mypassword\",\n\t\"custom_data\": {\n\t\t\"preferences\": {\n\t\t\t\"notifications\": false,\n\t\t\t\"lang\": \"EN\",\n\t\t\t\"export_report\": \"PDF\"\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/iam/usr?org_uuid=fd2fbb76-33b9-48ef-90ec-f3c74c274428",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"usr"
+					],
+					"query": [
+						{
+							"key": "org_uuid",
+							"value": "fd2fbb76-33b9-48ef-90ec-f3c74c274428",
+							"description": "This is optional if not passed the user is created with no orgs associated"
+						}
+					]
+				},
+				"description": "CREATES A NEW USER"
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE USER API",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-CMO-DB",
+						"value": "cperez08org_zfe0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"user_login\": \"cperez_devolop_3\"\n\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/iam/usr/api",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"usr",
+						"api"
+					]
+				},
+				"description": "CREATES A NEW USER"
+			},
+			"response": []
+		},
+		{
+			"name": "GENERATE ACCESS KEYS",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-CMO-DB",
+						"value": "cperez08org_zfe0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/iam/access/keys/:usr_uuid",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"access",
+						"keys",
+						":usr_uuid"
+					],
+					"variable": [
+						{
+							"key": "usr_uuid",
+							"value": "0e4491b6-4682-44f7-8c5d-7452993990e8"
+						}
+					]
+				},
+				"description": "Generates to an user new access keys"
+			},
+			"response": []
+		},
+		{
+			"name": "LINK USER IN ORG",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/iam/org/link/user/:org_uuid/:usr_uuid",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"org",
+						"link",
+						"user",
+						":org_uuid",
+						":usr_uuid"
+					],
+					"variable": [
+						{
+							"key": "org_uuid",
+							"value": "fd2fbb76-33b9-48ef-90ec-f3c74c274428"
+						},
+						{
+							"key": "usr_uuid",
+							"value": "cc354916-e424-4322-843d-2c5d96cf5881"
+						}
+					]
+				},
+				"description": "Link an user in the organisation"
+			},
+			"response": []
+		},
+		{
+			"name": "LINK USER TO ACCOUNT",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-CMO-DB",
+						"value": "cperez08org_zfe0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/iam/acc/link/user/:acc_uuid?usr_uuid=cc354916-e424-4322-843d-2c5d96cf5881",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"iam",
+						"acc",
+						"link",
+						"user",
+						":acc_uuid"
+					],
+					"query": [
+						{
+							"key": "usr_uuid",
+							"value": "cc354916-e424-4322-843d-2c5d96cf5881"
+						}
+					],
+					"variable": [
+						{
+							"key": "acc_uuid",
+							"value": "c3abcfcd-a19d-4f65-90c4-d70985b35431"
+						}
+					]
+				},
+				"description": "Link an user to an account"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
