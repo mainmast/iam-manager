@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"mainmast/iam-manager/internal/handler"
+	"github.com/mainmast/iam-manager/internal/handler"
 
 	wb "github.com/mainmast/httpm/pkg/webserver"
 )

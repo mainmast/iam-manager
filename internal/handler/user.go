@@ -7,8 +7,8 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	"mainmast/iam-manager/internal/orm"
-	"mainmast/iam-manager/internal/util"
+	"github.com/mainmast/iam-manager/internal/orm"
+	"github.com/mainmast/iam-manager/internal/util"
 )
 
 //CreateUserHandler ...

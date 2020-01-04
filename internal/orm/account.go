@@ -12,7 +12,7 @@ import (
 	//postgres driver
 	_ "github.com/lib/pq"
 
-	"mainmast/iam-manager/internal/util"
+	"github.com/mainmast/iam-manager/internal/util"
 
 	acc "github.com/mainmast/iam-models/pkg/account"
 )
