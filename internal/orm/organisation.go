@@ -15,14 +15,14 @@ import (
 	org "github.com/mainmast/iam-models/pkg/organisation"
 )
 
-//CreateOrganisation ...
+// Create an organisation entity.
 func CreateOrganisation(req *org.CreateOrgRQ) (*org.CreateOrgRS, error) {
 
 	conn, err := GetDBInstance()
 
 	if err != nil {
 
-		fmt.Println("Error connecting with dabase", err)
+		fmt.Println("Error connecting to database", err)
 		return nil, fmt.Errorf("Error creating connection with the database %v", err)
 	}
 
@@ -30,19 +30,20 @@ func CreateOrganisation(req *org.CreateOrgRQ) (*org.CreateOrgRS, error) {
 
 	var allow int
 
-	if err := conn.QueryRowContext(context.Background(), NotExistsOrgQuery, req.Organisation.Name).Scan(&allow); err != nil {
+	// Check to see if the organisation name already exists.
+	if err := conn.QueryRowContext(context.Background(), CheckOrganisationByNameQuery, req.Organisation.Name).Scan(&allow); err != nil {
 
-		fmt.Println("error validating org name", err)
-		return nil, errors.New("error validating org name")
+		fmt.Println("Error validating organisation name", err)
+		return nil, errors.New("Error validating organisation name")
 	}
 
 	if allow > 0 {
 
-		fmt.Println("org name", req.Organisation.Name, "alredy exists")
-		return nil, errors.New("DUPLICATED: Org name already exist please choose another one")
+		fmt.Println("Organisation name", req.Organisation.Name, "already exists")
+		return nil, errors.New("DUPLICATED: Organisation name already exists. Please choose another one.")
 	}
 
-	schema := util.NormalizeName(req.Organisation.Name, true)
+	schema := util.NormaliseOrganisationName(req.Organisation.Name, true)
 
 	if rs := util.SetUpCustomer("upgrade", schema); !rs {
 
@@ -51,44 +52,38 @@ func CreateOrganisation(req *org.CreateOrgRQ) (*org.CreateOrgRS, error) {
 		return nil, errors.New("Error setting up customer database")
 	}
 
-	orgCustom, err := json.Marshal(req.Organisation.CustomData)
+	organisationCustomData, err := json.Marshal(req.Organisation.CustomData)
 
 	if err != nil {
-
-		fmt.Println("error reading organisation custom data", err)
-		return nil, errors.New("invalid organisation custom data object")
+		fmt.Println("Error reading organisation custom data", err)
+		return nil, errors.New("Invalid organisation custom data object")
 	}
 
-	usrCustom, err := json.Marshal(req.User.CustomData)
+	userCustomData, err := json.Marshal(req.User.CustomData)
 
 	if err != nil {
 
-		fmt.Println("error reading user custom data", err)
-		return nil, errors.New("invalid user custom data object")
+		fmt.Println("Error reading user custom data", err)
+		return nil, errors.New("Invalid user custom data object")
 	}
 
 	res := &org.CreateOrgRS{}
 
 	res.OrganisationName = req.Organisation.Name
-	res.UserAPILogin = util.GenerateAPILogin(req.User.UserLogin)
-	res.UserPlatformLogin = req.User.UserLogin
-	res.AccountName = util.NormalizeName(req.Organisation.Name, false)
-
+	res.UserLogin = req.User.UserLogin
 	userSecret, err := util.SecretHash(req.User.UserSecret)
 
 	if err != nil {
-
-		return nil, errors.New("error generating password hash")
+		return nil, errors.New("Error generating password hash")
 	}
 
-	if err := conn.QueryRowContext(context.Background(), util.ParseQuerySchema(schema, CreateDefaultUsrQuery), &schema, &res.AccountName, &req.User.UserLogin,
-		&res.UserAPILogin, util.GenerateAccesKey(req.Organisation.Name), util.GenerateSecretKey()).Scan(&res.UserPlatformUUID, &res.UserAPIUUID, &res.AccountUUID, &res.AccessUUID); err != nil {
+	if err := conn.QueryRowContext(context.Background(), util.ParseQuerySchema(schema, CreateDefaultUserQuery), &schema, &res.AccountName, &req.User.UserLogin, &req.User.UserSecret).Scan(&res.UserUUID, &res.AccountUUID); err != nil {
 
-		fmt.Println("error creating default user", err)
-		return nil, errors.New("error creating default user")
+		fmt.Println("Error creating the root user for the organisation", err)
+		return nil, errors.New("Error creating root user")
 	}
 
-	if err := conn.QueryRowContext(context.Background(), CreateIamOrgAndUsrQuery, &req.Organisation.Name, &req.User.UserLogin, &userSecret, &schema, &orgCustom,
+	if err := conn.QueryRowContext(context.Background(), CreateIamOrgAndUsrQuery, &req.Organisation.Name, &req.User.UserLogin, &userSecret, &schema, &organisationCustomData,
 		&usrCustom, &res.UserPlatformUUID, pq.Array(&req.Organisation.WhitelistDomains)).Scan(&res.OrganisationUUID); err != nil {
 
 		fmt.Println("error creating organization, Rollbacking everything", err)
@@ -100,8 +95,8 @@ func CreateOrganisation(req *org.CreateOrgRQ) (*org.CreateOrgRS, error) {
 	return res, nil
 }
 
-//AssociateUserWithOrg ....
-func AssociateUserWithOrg(userUUID string, organisationUUID string) error {
+// Associate an IAM user with an organisation
+func AssociateUserWithOrganisation(userUUID string, organisationUUID string) error {
 
 	conn, err := GetDBInstance()
 

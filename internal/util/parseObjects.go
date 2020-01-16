@@ -7,6 +7,7 @@ import (
 
 	acc "github.com/mainmast/iam-models/pkg/account"
 	org "github.com/mainmast/iam-models/pkg/organisation"
+	platfrm "github.com/mainmast/iam-models/pkg/platform"
 	usr "github.com/mainmast/iam-models/pkg/user"
 )
 

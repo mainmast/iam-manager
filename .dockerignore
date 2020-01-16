@@ -1,4 +1,4 @@
 go.sum
 iam-manager
-cmd/
+# cmd/
 docs/

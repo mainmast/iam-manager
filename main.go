@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/mainmast/iam-manager/internal/handler"
+	"mainmast/iam-manager/internal/handler"
 
 	wb "github.com/mainmast/httpm/pkg/webserver"
 )
@@ -13,7 +13,7 @@ func main() {
 	port := os.Getenv("PORT")
 	server := &wb.WebServer{}
 
-	server.AddHandler("/iam/org", "POST", handler.CreateOrgHandler)
+	server.AddHandler("/iam/org", "POST", handler.CreateOrganisationHandler)
 	server.AddHandler("/iam/acc", "POST", handler.CreateAccountHandler)
 	server.AddHandler("/iam/usr", "POST", handler.CreateUserHandler)
 	server.AddHandler("/iam/usr/api", "POST", handler.CreateUserAPIHandler)

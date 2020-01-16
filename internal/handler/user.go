@@ -7,52 +7,52 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	"github.com/mainmast/iam-manager/internal/orm"
-	"github.com/mainmast/iam-manager/internal/util"
+	"mainmast/iam-manager/internal/orm"
+	"mainmast/iam-manager/internal/util"
 )
 
-//CreateUserHandler ...
+// HTTP Handler for creating a platform user
+// TODO: Better error responses
 func CreateUserHandler(ctx *fasthttp.RequestCtx) {
-
 	ctx.SetContentType("application/json; charset=UTF-8")
+
 	orgUUID := string(ctx.QueryArgs().Peek("org_uuid"))
-	req, err := util.ParseUser(ctx.PostBody())
+	user, err := util.ParseUser(ctx.PostBody())
 
 	if err != nil {
-
-		ctx.SetBody([]byte(`{"message": "error reading request"}`))
+		ctx.SetBody([]byte(`{"message": "Error reading user request"}`))
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		return
 	}
 
-	if err := orm.CreateUser(req, orgUUID); err != nil {
-
+	if err := orm.CreateIamUser(user, orgUUID); err != nil {
 		if strings.HasPrefix(err.Error(), "DUPLICATED") {
 
-			ctx.SetBody([]byte(`{"message": "user login already exists"}`))
+			ctx.SetBody([]byte(`{"message": "User login already exists"}`))
 			ctx.SetStatusCode(fasthttp.StatusConflict)
 			return
 
 		}
-		ctx.SetBody([]byte(`{"message": "error creating the account"}`))
+		ctx.SetBody([]byte(`{"message": "Error creating the user"}`))
 		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 		return
 	}
 
-	bt, err := json.Marshal(req)
-	if err != nil {
+	responseJson, err := json.Marshal(user)
 
-		ctx.SetBody([]byte(`{"message": "error encoding the response"}`))
+	if err != nil {
+		ctx.SetBody([]byte(`{"message": "Error encoding the response"}`))
 		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		return
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusCreated)
-	ctx.SetBody(bt)
+	ctx.SetBody(responseJson)
 	fmt.Println("LOG IAM-Manager/User@Create: done")
 	return
 }
 
-//CreateUserAPIHandler ...
+// Create Organisation Platform User
 func CreateUserAPIHandler(ctx *fasthttp.RequestCtx) {
 
 	ctx.SetContentType("application/json; charset=UTF-8")

@@ -13,24 +13,25 @@ import (
 	//postgres driver
 	_ "github.com/lib/pq"
 
-	"github.com/mainmast/iam-manager/internal/util"
+	"mainmast/iam-manager/internal/util"
 
 	usr "github.com/mainmast/iam-models/pkg/user"
 )
 
-//CreateUser ...
-func CreateUser(user *usr.User, orgUUID string) error {
+// Create an IAM user.
+func CreateIamUser(user *usr.User, orgUUID string) error {
 
 	conn, err := GetDBInstance()
 
 	if err != nil {
 
-		fmt.Println("Error connecting with dabase", err)
+		fmt.Println("Error connecting with database", err)
 		return fmt.Errorf("Error creating connection with the database %v", err)
 	}
 
 	defer conn.Close()
 
+	// Start an atomic transaction for the work.
 	tx, err := conn.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 
 	if err != nil {
@@ -39,34 +40,32 @@ func CreateUser(user *usr.User, orgUUID string) error {
 		return errors.New("User transaction could not be created")
 	}
 
+	// Generate a unique ID, and mark the resource as a platform user.
 	user.UUID = uuid.NewV4().String()
 	user.IsRoot = false
 	user.UserType = usr.Plaftorm
 
 	if err := util.CheckUserType(user); err != nil {
-
 		fmt.Println("Error checking user", err)
 		return errors.New("Error checking user")
 	}
 
-	usrCustom, err := json.Marshal(user.CustomData)
+	userCustomData, err := json.Marshal(user.CustomData)
 
 	if err != nil {
-
-		fmt.Println("error reading user custom data", err)
-		return errors.New("invalid user custom data object")
+		fmt.Println("Error reading user custom data", err)
+		return errors.New("Invalid user custom data object")
 	}
 
-	if _, err := tx.ExecContext(context.Background(), CreateIamUserQuery, user.UUID, user.UserLogin, user.UserSecret, usrCustom); err != nil {
-
+	// Insert the IAM user
+	if _, err := tx.ExecContext(context.Background(), CreateIamUserQuery, user.UUID, user.UserLogin, user.UserSecret, userCustomData); err != nil {
 		tx.Rollback()
 		fmt.Println("Error creating user", err)
 
 		if strings.HasPrefix(err.Error(), "pq: duplicate key") {
-
 			return errors.New("DUPLICATED: Error creating user")
-
 		}
+
 		return errors.New("Error creating user")
 	}
 
@@ -76,27 +75,27 @@ func CreateUser(user *usr.User, orgUUID string) error {
 	}
 
 	if strings.TrimSpace(orgUUID) != "" {
-
-		if err := AssociateUserWithOrg(user.UUID, orgUUID); err != nil {
-
+		if err := AssociateUserWithOrganisation(user.UUID, orgUUID); err != nil {
 			tx.Rollback()
-			if _, err := conn.ExecContext(context.Background(), DeleteUsrQuery, user.UUID); err != nil {
 
+			if _, err := conn.ExecContext(context.Background(), DeleteUsrQuery, user.UUID); err != nil {
 				fmt.Println("User created but not linked with any organisation, error rollbacking user", err)
 			}
-			fmt.Println("Error associating user with the org: ", err)
-			return errors.New("Error associating user with the org")
+
+			fmt.Println("Error associating user with the organisation: ", err)
+			return errors.New("Error associating user with the organisation")
 		}
 
 	}
 
 	user.Status = "active"
 	user.UserSecret = "REDACTED"
+
 	fmt.Println("user created")
 	return nil
 }
 
-//CreateUserAPI ...
+//
 func CreateUserAPI(user *usr.User, schema string) error {
 
 	conn, err := GetDBInstance()
